@@ -1,0 +1,39 @@
+.container{
+    background-color: #222;
+    height: 36px;
+    padding: 8px 32px 8px 16px;
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rotate{
+    animation: rotate 8s linear infinite;
+}
+@keyframes rotate{
+    to{ transform: rotate(360deg); }
+}
+
+.logo {
+    background-color: #ff7f7f;
+    height: 35px;
+    align-self: flex-start;
+}
+
+.buttonContainer {
+    width: auto;
+    flex-direction: row;
+    display: flex;
+}
+
+.buttonLogin {
+    display: flex;
+    margin-left: 150px;
+}
+
+.buttonBookShow {
+    display: flex;
+    margin-right: 400px;
+}
+
