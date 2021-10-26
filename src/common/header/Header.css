@@ -8,14 +8,12 @@
     justify-content: space-between;
 }
 
-.rotate{
-    animation: rotate 8s linear infinite;
-}
-@keyframes rotate{
-    to{ transform: rotate(360deg); }
+@keyframes app-logo-spin {
+    from { transform: scaleX(-1); }
 }
 
 .logo {
+    animation: app-logo-spin infinite 8s linear;
     background-color: #ff7f7f;
     height: 35px;
     align-self: flex-start;

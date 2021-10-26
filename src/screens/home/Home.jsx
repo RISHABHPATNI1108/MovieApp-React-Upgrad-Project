@@ -4,7 +4,7 @@ import Header from "../../common/header/Header";
 const Home = (props) => {
     return (
         <div>
-            <Header/>
+            <Header {...props} />
             <h1> Home</h1>
         </div>
     )
