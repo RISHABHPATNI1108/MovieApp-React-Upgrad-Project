@@ -1,37 +1,40 @@
-.container{
+.app-header {
     background-color: #222;
     height: 36px;
     padding: 8px 32px 8px 16px;
-    flex-direction: row;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+}
+
+.login-button {
+    float: right;
+}   
+
+.app-logo {
+    animation: app-logo-spin infinite 8s linear;
+    height: 35px;
+    background: #ff7f7f;
+}
+
+.bookshow-button {
+    float: right;
+    margin-right: 8px;
 }
 
 @keyframes app-logo-spin {
     from { transform: scaleX(-1); }
 }
 
-.logo {
-    animation: app-logo-spin infinite 8s linear;
-    background-color: #ff7f7f;
-    height: 35px;
-    align-self: flex-start;
+.tabs {
+    margin-bottom: 20px;
 }
 
-.buttonContainer {
-    width: auto;
-    flex-direction: row;
-    display: flex;
+.dispNone {
+    display: none;
 }
 
-.buttonLogin {
-    display: flex;
-    margin-left: 150px;
+.dispBlock {
+    display: block;
 }
 
-.buttonBookShow {
-    display: flex;
-    margin-right: 400px;
+.red {
+    color: red;
 }
-

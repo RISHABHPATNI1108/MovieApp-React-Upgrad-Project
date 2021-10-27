@@ -3,6 +3,8 @@ import "./Header.css"
 import { Button } from "@material-ui/core";
 import LOGO from "../../assets/logo.svg"
 import Modal from 'react-modal';
+import PropTypes from 'prop-types';
+
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -10,6 +12,8 @@ import Input from '@material-ui/core/Input';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import Typography from '@material-ui/core/Typography';
+import { Link } from 'react-router-dom';
+
 
 const TabContainer = function (props) {
     return (
@@ -17,6 +21,10 @@ const TabContainer = function (props) {
             {props.children}
         </Typography>
     )
+}
+
+TabContainer.propTypes = {
+    children: PropTypes.node.isRequired
 }
 
 const Header = (props) => {
@@ -32,114 +40,102 @@ const Header = (props) => {
         }
     };
 
-    const [currentState, setCurrentState] = useState({
-        modalIsOpen: false,
-        value: 0,
-        usernameRequired: "dispNone",
-        username: "",
-        loginPasswordRequired: "dispNone",
-        loginPassword: "",
-        firstnameRequired: "dispNone",
-        firstname: "",
-        lastnameRequired: "dispNone",
-        lastname: "",
-        emailRequired: "dispNone",
-        email: "",
-        registerPasswordRequired: "dispNone",
-        registerPassword: "",
-        contactRequired: "dispNone",
-        contact: "",
-        registrationSuccess: false,
-        loggedIn: sessionStorage.getItem("access-token") == null ? false : true
-    })
+    const [modalIsOpen, setModalIsOpen] = useState(false)
+    const [value, setValue] = useState(0)
+    const [usernameRequired, setUsernameRequired] = useState("dispNone")
+    const [username, setUsername] = useState("")
+    const [loginPasswordRequired, setLoginPasswordRequired] = useState("dispNone")
+    const [loginPassword, setLoginPassword] = useState("")
+    const [firstnameRequired, setFirstnameRequired] = useState("dispNone")
+    const [firstname, setFirstname] = useState("")
+    const [lastnameRequired, setLastnameRequired] = useState("dispNone")
+    const [lastname, setLastname] = useState("")
+    const [emailRequired, setEmailRequired] = useState("dispNone")
+    const [email, setEmail] = useState("")
+    const [registerPasswordRequired, setRegisterPasswordRequired] = useState("dispNone")
+    const [registerPassword, setRegisterPassword] = useState("")
+    const [contactRequired, setContactRequired] = useState("dispNone")
+    const [contact, setContact] = useState("")
+    const [registrationSuccess, setRegistrationSuccess] = useState(false)
+    const [loggedIn, setLoggedIn] = useState(sessionStorage.getItem("access-token") == null ? false : true)
 
     const openModalHandler = () => {
-        setCurrentState({
-            modalIsOpen: true,
-            value: 0,
-            usernameRequired: "dispNone",
-            username: "",
-            loginPasswordRequired: "dispNone",
-            loginPassword: "",
-            firstnameRequired: "dispNone",
-            firstname: "",
-            lastnameRequired: "dispNone",
-            lastname: "",
-            emailRequired: "dispNone",
-            email: "",
-            registerPasswordRequired: "dispNone",
-            registerPassword: "",
-            contactRequired: "dispNone",
-            contact: ""
-        });
-    }
+        setModalIsOpen(true)
+        setValue(0)
+        setUsernameRequired("dispNone")
+        setUsername("")
+        setLoginPasswordRequired("dispNone")
+        setLoginPassword("")
+        setFirstnameRequired("dispNone")
+        setFirstname("")
+        setLastnameRequired("dispNone")
+        setLastname("")
+        setEmailRequired("dispNone")
+        setEmail("")
+        setRegisterPasswordRequired("dispNone")
+        setRegisterPassword("")
+        setContactRequired("dispNone")
+        setContact("")
+    };
 
 
     const closeModalHandler = () => {
-        setCurrentState({
-            ...currentState,
-            modalIsOpen: false
-        });
+        setModalIsOpen(false)
     }
 
     const tabChangeHandler = (event, value) => {
-        setCurrentState({
-            ...currentState,
-            value
-        });
+        setValue(value)
     }
 
     const loginClickHandler = () => {
-        currentState.username === "" ? setCurrentState({ usernameRequired: "dispBlock" }) : setCurrentState({ usernameRequired: "dispNone" });
-        currentState.loginPassword === "" ? setCurrentState({ loginPasswordRequired: "dispBlock" }) : setCurrentState({ loginPasswordRequired: "dispNone" });
+        setUsernameRequired(username === "" ? "dispBlock" : "dispNone");
+        setLoginPasswordRequired(loginPassword === "" ? "dispBlock" : "dispNone");
 
         let dataLogin = null;
-        let xhrLogin = new XMLHttpRequest();
-        let that = this;
-        xhrLogin.addEventListener("readystatechange", function () {
-            if (this.readyState === 4) {
-                sessionStorage.setItem("uuid", JSON.parse(this.responseText).id);
-                sessionStorage.setItem("access-token", xhrLogin.getResponseHeader("access-token"));
 
-                that.setState({
-                    loggedIn: true
-                });
-
-                that.closeModalHandler();
-            }
+        fetch(props.baseUrl + "auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache",
+                "Authorization": "Basic " + window.btoa(username + ":" + loginPassword)
+            },
+            body: dataLogin,
+        }).then((response) => {
+            let accessToken = response.headers.get("access-token");
+            sessionStorage.setItem("access-token", accessToken);
+            return response.json()
+        }).then((response) => {
+            sessionStorage.setItem("uuid", response.id);
+            setLoggedIn(true)
+            closeModalHandler()
+        }).catch((e) => {
+            console.log("error" + e)
         });
-
-        xhrLogin.open("POST", this.props.baseUrl + "auth/login");
-        xhrLogin.setRequestHeader("Authorization", "Basic " + window.btoa(currentState.username + ":" + currentState.loginPassword));
-        xhrLogin.setRequestHeader("Content-Type", "application/json");
-        xhrLogin.setRequestHeader("Cache-Control", "no-cache");
-        xhrLogin.send(dataLogin);
     }
 
     const inputUsernameChangeHandler = (e) => {
-        setCurrentState({ ...currentState, username: e.target.value });
+        setUsername(e.target.value);
     }
 
     const inputLoginPasswordChangeHandler = (e) => {
-        setCurrentState({ ...currentState, loginPassword: e.target.value });
+        setLoginPassword(e.target.value);
     }
 
     const registerClickHandler = () => {
-        currentState.firstname === "" ? setCurrentState({ firstnameRequired: "dispBlock" }) : setCurrentState({ firstnameRequired: "dispNone" });
-        currentState.lastname === "" ? setCurrentState({ lastnameRequired: "dispBlock" }) : setCurrentState({ lastnameRequired: "dispNone" });
-        currentState.email === "" ? setCurrentState({ emailRequired: "dispBlock" }) : setCurrentState({ emailRequired: "dispNone" });
-        currentState.registerPassword === "" ? setCurrentState({ registerPasswordRequired: "dispBlock" }) : setCurrentState({ registerPasswordRequired: "dispNone" });
-        currentState.contact === "" ? setCurrentState({ contactRequired: "dispBlock" }) : setCurrentState({ contactRequired: "dispNone" });
+        setFirstnameRequired(firstname === "" ? "dispBlock" : "dispNone")
+        setLastnameRequired(lastname === "" ? "dispBlock" : "dispNone")
+        setEmailRequired(email === "" ? "dispBlock" : "dispNone")
+        setRegisterPasswordRequired(registerPassword === "" ? "dispBlock" : "dispNone")
+        setContactRequired(contact === "" ? "dispBlock" : "dispNone")
 
         let dataSignup = JSON.stringify({
-            "email_address": currentState.email,
-            "first_name": currentState.firstname,
-            "last_name": currentState.lastname,
-            "mobile_number": currentState.contact,
-            "password": currentState.registerPassword
+            "email_address": email,
+            "first_name": firstname,
+            "last_name": lastname,
+            "mobile_number": contact,
+            "password": registerPassword
         });
-
-        console.log("dataSignup" + dataSignup + "\n baseurl " + props.baseUrl)
 
         fetch(props.baseUrl + "signup/", {
             method: "POST",
@@ -150,122 +146,107 @@ const Header = (props) => {
             body: dataSignup,
         }).then((response) => response.json())
             .then((response) => {
-                console.log("success" + response)
+                setRegistrationSuccess(true);
             }).catch((e) => {
                 console.log("error" + e)
             });
-
-
-        // let xhrSignup = new XMLHttpRequest();
-        // xhrSignup.addEventListener("readystatechange", function () {
-        //     if (this.readyState === 4) {
-        //         setCurrentState({
-        //             ...currentState,
-        //             registrationSuccess: true
-        //         });
-        //     }
-        // });
-
-
-        // xhrSignup.open("POST", "http://localhost:8085" + props.baseUrl + "signup");
-        // xhrSignup.setRequestHeader("Content-Type", "application/json");
-        // xhrSignup.setRequestHeader("Cache-Control", "no-cache");
-        // xhrSignup.send(dataSignup);
     }
 
     const inputFirstNameChangeHandler = (e) => {
-        setCurrentState({
-            ...currentState,
-            firstname: e.target.value
-        });
+        setFirstname(e.target.value);
     }
 
     const inputLastNameChangeHandler = (e) => {
-        setCurrentState({
-            ...currentState,
-            lastname: e.target.value
-        });
+        setLastname(e.target.value);
     }
 
     const inputEmailChangeHandler = (e) => {
-        setCurrentState({
-            ...currentState,
-            email: e.target.value
-        });
+        setEmail(e.target.value);
     }
 
     const inputRegisterPasswordChangeHandler = (e) => {
-        setCurrentState({
-            ...currentState,
-            registerPassword: e.target.value
-        });
+        setRegisterPassword(e.target.value);
     }
 
     const inputContactChangeHandler = (e) => {
-        setCurrentState({
-            ...currentState,
-            contact: e.target.value
-        });
+        setContact(e.target.value);
     }
 
-    const logoutHandler = (e) => {
+    const logoutHandler = () => {
         sessionStorage.removeItem("uuid");
         sessionStorage.removeItem("access-token");
-
-        setCurrentState({
-            ...currentState,
-            loggedIn: false
-        });
+        setLoggedIn(false)
     }
 
     return (
         <div>
+            <header className="app-header">
+                <img src={LOGO} className="app-logo" alt="Movies App Logo" />
+                {!loggedIn ?
+                    <div className="login-button">
+                        <Button variant="contained" color="default" onClick={openModalHandler}>
+                            Login
+                        </Button>
+                    </div>
+                    :
+                    <div className="login-button">
+                        <Button variant="contained" color="default" onClick={logoutHandler}>
+                            Logout
+                        </Button>
+                    </div>
+                }
+                {props.showBookShowButton && !loggedIn
+                    ? <div className="bookshow-button">
+                        <Button variant="contained" color="primary" onClick={(e) => openModalHandler(e)}>
+                            Book Show
+                        </Button>
+                    </div>
+                    : ""
+                }
 
-            <div className="container">
-                <img src={LOGO} className={"logo rotate"} />
+                {props.showBookShowButton && loggedIn
+                    ? <div className="bookshow-button">
+                        <Link to={"/bookshow/" + props.id}>
+                            <Button variant="contained" color="primary">
+                                Book Show
+                            </Button>
+                        </Link>
+                    </div>
+                    : ""
+                }
 
-                <div className={"buttonContainer"}>
-
-                    <Button variant={"contained"} color={"primary"} className={"buttonBookShow"}>
-                        Book Show
-                    </Button>
-
-                    <Button variant={"contained"} className={"buttonLogin"} onClick={() => openModalHandler()}>
-                        Login
-                    </Button>
-                </div>
-            </div>
+            </header>
             <Modal
                 ariaHideApp={false}
-                isOpen={currentState.modalIsOpen}
+                isOpen={modalIsOpen}
                 contentLabel="Login"
                 onRequestClose={() => closeModalHandler()}
                 style={customStyles}
             >
-                <Tabs className="tabs" value={currentState.value} onChange={(e, value) => tabChangeHandler(e, value)}>
+                <Tabs className="tabs" value={value} onChange={(e, value) => tabChangeHandler(e, value)}>
                     <Tab label="Login" />
                     <Tab label="Register" />
                 </Tabs>
 
-                {currentState.value === 0 &&
+                {value === 0 &&
                     <TabContainer>
                         <FormControl required>
                             <InputLabel htmlFor="username">Username</InputLabel>
-                            <Input id="username" type="text" username={currentState.username} onChange={(e) => inputUsernameChangeHandler(e)} />
-                            <FormHelperText className={currentState.usernameRequired}>
+                            <Input id="username" type="text" username={username} onChange={(e) => inputUsernameChangeHandler(e)} />
+                            <FormHelperText className={usernameRequired}>
                                 <span className="red">required</span>
                             </FormHelperText>
                         </FormControl>
                         <br /><br />
                         <FormControl required>
                             <InputLabel htmlFor="loginPassword">Password</InputLabel>
-                            <Input id="loginPassword" type="password" loginpassword={currentState.loginPassword} onChange={(e) => inputLoginPasswordChangeHandler(e)} />
-                            <FormHelperText className={currentState.loginPasswordRequired}>
+                            <Input id="loginPassword" type="password" loginpassword={loginPassword} onChange={(e) => inputLoginPasswordChangeHandler(e)} />
+                            <FormHelperText className={loginPasswordRequired}>
                                 <span className="red">required</span>
                             </FormHelperText>
                         </FormControl>
                         <br /><br />
-                        {currentState.loggedIn === true &&
+                        {loggedIn === true &&
                             <FormControl>
                                 <span className="successText">
                                     Login Successful!
@@ -277,49 +258,49 @@ const Header = (props) => {
                     </TabContainer>
                 }
 
-                {currentState.value === 1 &&
+                {value === 1 &&
                     <TabContainer>
                         <FormControl required>
                             <InputLabel htmlFor="firstname">First Name</InputLabel>
-                            <Input id="firstname" type="text" firstname={currentState.firstname} onChange={(e) => inputFirstNameChangeHandler(e)} />
-                            <FormHelperText className={currentState.firstnameRequired}>
+                            <Input id="firstname" type="text" firstname={firstname} onChange={(e) => inputFirstNameChangeHandler(e)} />
+                            <FormHelperText className={firstnameRequired}>
                                 <span className="red">required</span>
                             </FormHelperText>
                         </FormControl>
                         <br /><br />
                         <FormControl required>
                             <InputLabel htmlFor="lastname">Last Name</InputLabel>
-                            <Input id="lastname" type="text" lastname={currentState.lastname} onChange={(e) => inputLastNameChangeHandler(e)} />
-                            <FormHelperText className={currentState.lastnameRequired}>
+                            <Input id="lastname" type="text" lastname={lastname} onChange={(e) => inputLastNameChangeHandler(e)} />
+                            <FormHelperText className={lastnameRequired}>
                                 <span className="red">required</span>
                             </FormHelperText>
                         </FormControl>
                         <br /><br />
                         <FormControl required>
                             <InputLabel htmlFor="email">Email</InputLabel>
-                            <Input id="email" type="text" email={currentState.email} onChange={(e) => inputEmailChangeHandler(e)} />
-                            <FormHelperText className={currentState.emailRequired}>
+                            <Input id="email" type="text" email={email} onChange={(e) => inputEmailChangeHandler(e)} />
+                            <FormHelperText className={emailRequired}>
                                 <span className="red">required</span>
                             </FormHelperText>
                         </FormControl>
                         <br /><br />
                         <FormControl required>
                             <InputLabel htmlFor="registerPassword">Password</InputLabel>
-                            <Input id="registerPassword" type="password" registerpassword={currentState.registerPassword} onChange={(e) => inputRegisterPasswordChangeHandler(e)} />
-                            <FormHelperText className={currentState.registerPasswordRequired}>
+                            <Input id="registerPassword" type="password" registerpassword={registerPassword} onChange={(e) => inputRegisterPasswordChangeHandler(e)} />
+                            <FormHelperText className={registerPasswordRequired}>
                                 <span className="red">required</span>
                             </FormHelperText>
                         </FormControl>
                         <br /><br />
                         <FormControl required>
                             <InputLabel htmlFor="contact">Contact No.</InputLabel>
-                            <Input id="contact" type="text" contact={currentState.contact} onChange={(e) => inputContactChangeHandler(e)} />
-                            <FormHelperText className={currentState.contactRequired}>
+                            <Input id="contact" type="text" contact={contact} onChange={(e) => inputContactChangeHandler(e)} />
+                            <FormHelperText className={contactRequired}>
                                 <span className="red">required</span>
                             </FormHelperText>
                         </FormControl>
                         <br /><br />
-                        {currentState.registrationSuccess === true &&
+                        {registrationSuccess === true &&
                             <FormControl>
                                 <span className="successText">
                                     Registration Successful. Please Login!
